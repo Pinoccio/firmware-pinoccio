@@ -1,0 +1,17 @@
+[submodule "hardware/pinoccio"]
+	path = hardware/pinoccio
+	url = https://github.com/Pinoccio/core-pinoccio.git
+[submodule "libraries/bitlash"]
+	path = libraries/bitlash
+	url = https://github.com/Pinoccio/library-bitlash.git
+	branch = pinoccio
+[submodule "libraries/lwm"]
+	path = libraries/lwm
+	url = https://github.com/Pinoccio/library-atmel-lwm.git
+	branch = pinoccio
+[submodule "libraries/gainspan"]
+	path = libraries/gainspan
+	url = https://github.com/Pinoccio/library-gainspan-s2w.git
+[submodule "libraries/pinoccio"]
+	path = libraries/pinoccio
+	url = https://github.com/Pinoccio/library-pinoccio.git

@@ -46,13 +46,13 @@ Arduino downloads too old and does not contain the right patches for the
 Atmega256RFR2 chip used in the Pinoccio Scout.
 
 Fortunately, the Arduino is preparing an update for the toolchain and
-has a preview version available already. You can download this version
+has a preview version available already. You can download your required version
 here:
 
- - Windows: [http://downloads.arduino.cc/arduino-avr-toolchain-nightly-gcc-4.8.1-windows.zip]()
- - OSX: [http://downloads.arduino.cc/arduino-avr-toolchain-nightly-gcc-4.8.1-macosx.zip]()
- - 32-bit Linux: [http://downloads.arduino.cc/arduino-avr-toolchain-nightly-gcc-4.8.1-linux32.tgz]()
- - 64-bit Linux: [http://downloads.arduino.cc/arduino-avr-toolchain-nightly-gcc-4.8.1-linux64.tgz]()
+ - [Windows IDE Download](http://downloads.arduino.cc/arduino-avr-toolchain-nightly-gcc-4.8.1-windows.zip)
+ - [OSX IDE Download](http://downloads.arduino.cc/arduino-avr-toolchain-nightly-gcc-4.8.1-macosx.zip)
+ - [32-bit Linux Download](http://downloads.arduino.cc/arduino-avr-toolchain-nightly-gcc-4.8.1-linux32.tgz)
+ - [64-bit Linux Download](http://downloads.arduino.cc/arduino-avr-toolchain-nightly-gcc-4.8.1-linux64.tgz)
 
 There is currently one caveat: The avrdude version included in above
 builds is version 5, which does not support the atmega256rfr2 chip yet.

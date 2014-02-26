@@ -4,6 +4,7 @@
 #include <GS.h>
 #include <bitlash.h>
 #include <lwm.h>
+#include <js0n.h>
 
 /* MANUAL PROVISIONING BITLASH COMMANDS
 mesh.config(<Scout ID>, <Troop ID>)

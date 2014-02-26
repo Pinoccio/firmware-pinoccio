@@ -136,7 +136,7 @@ they can work anonymously. If you have commit access to these
 repositories and want to use ssh access so you can push, you can tell
 git to replace https with ssh automatically:
 
-    git config --global url.git@github.com.insteadOf https://github.com/
+    git config --global url.git@github.com:.insteadOf https://github.com/
 
 Note that this command applies to _all_ github urls in all repositories.
 

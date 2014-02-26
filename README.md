@@ -57,7 +57,7 @@ here:
 There is currently one caveat: The avrdude version included in above
 builds is version 5, which does not support the atmega256rfr2 chip yet.
 This is expected to be fixed soon, but until then you should either
-overwrite `hardware/tools/avr/bin/avrdude` with a version 6 binary, or
+overwrite `hardware/tools/avr/bin/avrdude` with a version 6 binary and its config file with `hardware/tools/avr/etc/avrdude.conf` with a verision 6 conf file, or
 modify `platform.txt` to point to the right version.
 
 ------------------------------------

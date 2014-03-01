@@ -86,24 +86,28 @@ bitlash  gainspan  lwm  pinoccio
 ```
 
 Now, you need to make sure the Arduino IDE learns about this hardware
-folder and these libraries. There are a few ways to achieve this:
+folder, the libraries and the mains sketch. There are a few ways to
+achieve this:
 
  1. Set the Arduino sketchbook path to the the `firmware-pinoccio` dir
     you created above (under File -> Preferences). This is the easiest
     and will make everything work right away. The downside here is that
     the Arduino IDE will no longer see your regular libraries and
     sketches, until you change the sketchbook path back.
+
  2. Create symlinks from your sketchbook to the folder above. e.g.:
 
     ```
     mkdir -p /path/to/sketchbook/hardware /path/to/sketchbook/libraries
     ln -s /path/to/firmware/pinoccio/hardware/pinoccio /path/to/sketchbook/hardware
+    ln -s /path/to/firmware/pinoccio/Bootstrap /path/to/sketchbook/
     for i in /path/to/firmware-pinoccio/libraries/*; do
       ln -s $i /path/to/sketchbook/libraries
     done
     ```
     The downside of this approach is that you need to maintain the
     symlinks when a library is added or removed.
+
  3. Copy the various repositories into your sketchbook (or just clone
     them in the right place to begin with). This requires manually
     running git pull in each repository to stay up to date, so this is

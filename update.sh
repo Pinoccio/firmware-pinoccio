@@ -5,7 +5,10 @@
 check_version()
 {
     version=$1 minimum=$2
-    winner=$( (echo "$version"; echo "$minimum") | sort --version-sort --reverse | head -1)
+    # This uses --key instead of --version-sort, since OSX sort (and probably
+    # older gnu versions) don't support --version-sort. This only checks the first
+    # three version components, though.
+    winner=$( (echo "$version"; echo "$minimum") | sort --field-separator . --key 1,1nr --key 2,2nr --key 3,3nr| head -1)
     [ "$winner" = "$version" ] && return 0
     return 1
 }

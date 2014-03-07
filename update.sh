@@ -7,8 +7,9 @@ check_version()
     version=$1 minimum=$2
     # This uses --key instead of --version-sort, since OSX sort (and probably
     # older gnu versions) don't support --version-sort. This only checks the first
-    # three version components, though.
-    winner=$( (echo "$version"; echo "$minimum") | sort --field-separator . --key 1,1nr --key 2,2nr --key 3,3nr| head -1)
+    # four version components (so the minimum version must not have more
+    # than 3 components).
+    winner=$( (echo "$version"; echo "$minimum") | sort --field-separator . --key 1,1nr --key 2,2nr --key 3,3nr --key 4,4nr | head -1)
     [ "$winner" = "$version" ] && return 0
     return 1
 }

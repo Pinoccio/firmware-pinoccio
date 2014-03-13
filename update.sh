@@ -15,7 +15,7 @@ check_version()
 }
 
 GIT_VERSION=$(git --version | sed 's/^[^.0-9]*//')
-GIT_REQUIRED=1.8.4
+GIT_REQUIRED=1.8.3
 if ! check_version "$GIT_VERSION" "$GIT_REQUIRED"; then
 	echo "Git version too old. Found: $GIT_VERSION. Required: $GIT_REQUIRED"
 	exit 1;

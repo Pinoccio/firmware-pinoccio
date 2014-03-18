@@ -35,6 +35,13 @@ git submodule --quiet sync
 # that now (--init).
 git submodule update --init --remote --rebase
 
-echo "Done, current status is:"
+if [ $? -ne 0 ]; then 
+	echo "Update failed"
+	exit 1; 
+fi
+
+echo "Current status is:"
 
 git submodule status
+
+echo -e "\n\nUpdate successful!\n"

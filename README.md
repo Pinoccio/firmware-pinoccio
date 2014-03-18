@@ -28,15 +28,15 @@ enough (e.g., you can run blink without step 3).
 Quick start: Preconfigured VM
 -----------------------------
 There is a pre-configured Pinoccio VM available, which you can use to
-quickly get all three of the above requirements done. This is a 3.4GB
+quickly get all three of the above requirements done. This is a 1GB
 torrent containing a VM template that can be imported into either
 Virtualbox or VMWare Workstation/Fusion.
 
-*This link is outdated and does not match the current version*
+Magnet URI (Built 18 Mar 2014):
 
-Magnet URI (current version is 0.9):
+magnet:?xt=urn:btih:788538B08B13E723AC3649BB813891DC785EF99C
 
-magnet:?xt=urn:btih:3A291BD6C4EC6C720B73D0625285692DF7F030A7
+The `create-vm-image.sh` script will build a new VM image from scratch (advanced users only!)
 
 --------------
 1: Arduino IDE

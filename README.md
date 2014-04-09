@@ -143,6 +143,24 @@ Compiling Sketches
 ------------------
 
 You should then be able to open one of the Pinoccio examples
-(File->Examples->Pinoccio->[example]) or the main sketch
-(File->Sketchbook->Bootstrap) and compile it. Make sure your Board is
-set to Pinoccio and the Port is set to your serial port.
+(File->Examples->Pinoccio->[example]. Make sure your Board is set to
+Pinoccio and the Port is set to your serial port.
+
+------------------------------------
+Official firmware / Bootstrap builds
+------------------------------------
+When shipped and when updating the Pinoccio scout boards through the
+Pinoccio HQ, it will contain an official firmware build. This build is
+generated using the "Bootstrap" example from the library-pinoccio
+repository. This example pulls in the needed libraries and generates the
+main firmware that offers a ScoutScript prompt and knows how to talk to
+the various hardware attached to the Pinoccio scout.
+
+These official builds are generated using the `build.sh` script in this
+repository, which automatically detects the build number (based on tags
+and git revision) and includes that in the build. If you build the
+Bootstrap example through the Arduino IDE normally, the build number and
+revision will be set to -1 and "unknown".
+
+See the comments at the top of the `build.sh` script for instructions on
+how to use it.

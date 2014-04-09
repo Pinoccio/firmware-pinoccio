@@ -129,7 +129,9 @@ mkdir -p ${BUILD_DIR}
 
 echo "Building/uploading..."
 # Run the actual Arduino IDE command
-${ARDUINO} ${ACTION} ${ARDUINO_OPTIONS} ${SKETCH}
+# Make the sketch filename absolute until
+# https://github.com/arduino/Arduino/issues/1493 is fixed on OSX too.
+${ARDUINO} ${ACTION} ${ARDUINO_OPTIONS} $(pwd)/${SKETCH}
 
 # Put the build result in the current directory
 cp ${BUILD_DIR}/Bootstrap.cpp.hex Bootstrap.hex

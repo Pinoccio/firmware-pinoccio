@@ -33,7 +33,7 @@ check_version()
     # older gnu versions) don't support --version-sort. This only checks the first
     # four version components (so the minimum version must not have more
     # than 3 components).
-    winner=$( (echo "$version"; echo "$minimum") | sort --field-separator . --key 1,1nr --key 2,2nr --key 3,3nr --key 4,4nr | head -1)
+    winner=$( (echo "$version"; echo "$minimum") | sort -t . -k 1,1nr -k 2,2nr -k 3,3nr -k 4,4nr | head -1)
     [ "$winner" = "$version" ] && return 0
     return 1
 }

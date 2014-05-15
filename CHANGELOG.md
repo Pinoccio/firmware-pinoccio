@@ -32,7 +32,7 @@ function bar {led.off; power.sleep(4000, "foo"); };
   Now you can delay things inside of ScoutScript.  It can be called multiple times without conflict. Here's how you use it:
 
   ```c
-  scout.delay("led.red", 1000); scout.delay("led.off", 3000);
+  scout.delay(1000, "led.red"); scout.delay(3000, "led.off");
 ```
 
   This will turn the LED red after one second, and turn it off two seconds later, since both timers will start immediately.  Be sure to run both of those commands in the example above on the same line so you get proper timing!

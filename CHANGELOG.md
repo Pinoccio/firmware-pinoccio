@@ -1,3 +1,21 @@
+#2014060501
+
+- ###Add Serial Flash example for how to use the storage chip on the lead scout
+
+- ###Add ClearScoutScript example sketch to reset functions defined in EEPROM
+
+- ###Include simple Bluetooth example sketch
+
+- ###Slightly modify ScoutScript banner for easier reading
+
+- ###Solve issue with mesh security key, when given less than 16 bytes
+
+- ###Better handling for skipping NTP on non-SSL connections for lead scout
+
+- ###Fix incorrect ScoutScript usage arguments, specifically for `pin.save` and `hq.report`
+
+- ###Clean up `power.sleep` handling
+
 #2014051403
 
 - ###Introduce the `power.sleep` command

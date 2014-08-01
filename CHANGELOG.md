@@ -1,33 +1,197 @@
 #2014073101
 
-- #####Add better sleep and awake timing resolution, now down to 16µS! (library-pinoccio)
+- #####Use the symbol counter for sleep timing (library-pinoccio, #149)
+  Internally, the sleep timing is now calculated using the symbol
+  counter, which is a 32-bit counter counting in 16μs increments.
 
-- #####Add ScoutScript function caching for much faster boot and event handling responsiveness (library-pinoccio)
+  This (internally) increases sleep precision, but also limits the
+  maximum sleep time to just over 19 hours (2³² * 16 μs). Because the
+  symbol counter keeps on running at the same frequency while awake and
+  while sleeping, the sleep timing should be more accurate than before.
 
-- #####Add support for faster, non-polling communications for WiFi backpack hardware version v1.1 (library-pinoccio)
+  The `power.sleep` function still accepts a sleep interval in
+  milliseconds as before.
 
-- #####Add support in ScoutScript for the wifi.config second argument to be optional, for open networks (library-pinoccio)
+- ##### Allow waking up from sleep on pin changes (library-pinoccio, #149)
+  A number of pins on the Scout have support for triggering an interrupt
+  that can wake up the Scout from sleep.
 
-- #####Additional bridge-mode serial REPL refactoring (library-pinoccio)
+  To use this feature, first configure the pin as an input as normal.
+  Then run e.g. `power.wakeup.pin("d2")` to enable wakeups for that pin.
 
-- #####Ability to calibrate temperature for each Scout--to offset external factors (library-pinoccio)
+  Not all pins are available, only the pins that have external interrupt or pin
+  change interrupts. Supported pins are: D2, D4, D5, D7, BATT_ALERT, SS, MOSI,
+  MISO, SCK, TX1, RX1, SDA, SCL.
 
+  Of these, pins D4, D5, D7 and BATT_ALERT only support waking up on a low
+  level, not on a change. This means that wakeup is enabled for one of these
+  pins and it is low when starting the sleep, the scout will immediately wake
+  up again, effectively preventing it from sleeping.
+
+  Furthermore, [due to a bug][Arduino510] in the Arduino core, for the SCL,
+  SDA, RX1 and TX1 pins when a pin change happens while not sleeping, the next
+  sleep will be immediately interrupted because the interrupt flag remains set
+  and immediately triggers the interrupt.
+
+  [Arduino510]: https://github.com/arduino/Arduino/issues/510
+
+  Note that even though the wakeups involve interrupts, these interrupts
+  do not actually handle the new pin value, they just cause the Scout to
+  wake up. The handling of the pin change is handled by the normal
+  polling and `on.d[2-8]` event callbacks as normal, but only if the pin
+  keeps its new value long enough for the polling to notice it after
+  waking up.
+
+  Also note that not a lot of effort is done to prevent race conditions:
+  For example, if the pin change occurs just before sleeping, then the
+  corresponding pin change handler might not be run, or only after
+  sleeping. If these race conditions are problematic, short response
+  times are needed or the pulses are very short, a custom sketch might
+  still be needed.
+
+- ##### Improve `power.sleep` callbacks (library-pinoccio, #149)
+  `power.sleep` now accepts only a callback function name (not a full
+  ScoutScript command). This function gets passed two arguments: the
+  total sleep duration (e.g. the first argument to `power.sleep` as-is)
+  as well as the number of milliseconds left to sleep.
+
+  Normally, the second argument will be 0. However, when the sleep was
+  interrupted, it can be non-zero.
+
+  When sleep is interrupted, the callback function can return a non-zero
+  value to continue sleeping until the full sleep duration has passed.
+  When the callback returns 0, no further sleeping happens (though the
+  callback can of course call `power.sleep` again to schedule another
+  sleep interval).
+
+  It is advisable to always let the `power.sleep` callback function
+  return a value. If no value is explicitely returned, the return value
+  of the last statement in the callback function is used, which might
+  not be what you want.
+
+- ##### Rename `pin.list` to `pin.status` and extend it (library-pinoccio, #149)
+  It now also shows PWM and wakeup support for each pin.
+
+- ##### Make the "password" argument to `wifi.config` optional (library-pinoccio)
+  This allows using open wifi networks.
+
+- #####Add ScoutScript function name caching (library-pinoccio, #157)
+  This removes the need to look into the (slow) EEPROM to determine if a
+  function is defined. In particular, this improves the startup time,
+  since there a lot of `startup.something` function are ran (and before,
+  for each of these functions that did not exist, the entire EEPROM
+  contents was scanned).
+
+- #####Enable usage of the "data ready" pin on WiFi backpack hardware version v1.1 (library-pinoccio)
+  This pin was not connected on the v1.0 backpack, so the Scout had to
+  resort to polling the SPI bus. With this pin added and support
+  enabled, the CPU overhead on a lead scout should be significantly
+  reduced.
+
+- #####Improve bridge mode support and ScoutScript prompt (library-pinoccio, #156)
+  This restructures the handling of the ScoutScript prompt, which
+  makes the bridge mode support a lot more stable. It should now be
+  usable, using the pinoccio node module running on the PC.
+
+- #####Support calibrating the temperature sensor (library-pinoccio)
+  This stores a simple offset value (in degrees Celcius) for the
+  internal temperature sensor. The offset can be set explicitely using
+  `temperature.setoffset` or can be calculated automatically by passing
+  the real current temperature (in degrees Celcius) to
+  `temperature.calibrate`
 
 #2014072201
 
-- #####Add BOM and labels for jumpers in Pinoccio Scout schematic (hardware-pinoccio)
+- #####Updated Lightweight Mesh library to v1.2.1 (Pinoccio/library-atmel-lwm)
+  This contains no changes that affect Pinoccio, but it does clarify the
+  library licensing a bit.
 
-- #####Updated Lightweight Mesh library to v1.2.1 (library-atmel-lwm)
+- #####Add support for "disconnected" pinmode, to reduce power draw (library-pinoccio, #130)
+  Pins that are unused and do not have anything connected to them, draw
+  more power than needed. To prevent wasting this power, these pins
+  should be set to the "disconnected" pin mode. This can either be done
+  one-by-one using `pin.makedisconnected` or it can be done at once for
+  all pins that have not been assigned any other pin mode yet, using the
+  `pin.othersdisconnected` function.
 
-- #####Add support for disabled and disconnected states for pins, for lower sleep power draw (library-pinoccio)
+  Note that setting the "disconnected" pin mode enables the internal
+  pullup resistor and should only be used for pins that are not actually
+  connected to anything (see below). If a pin is connected to something
+  but not used right now, you should set its pinmode to "disabled"
+  instead.
 
-- #####Add millis to all reports for clean synchro/deduplication at API side (library-pinoccio)
+  This extra power usage comes from the pin input logic. In the default
+  pin mode (which is changed from "disabled" to "unset"), the hardware
+  input logic is active. When a pin is unused (e.g.  not connected to
+  anything / floating), its voltage can fluctuate under the influence of
+  static charges. If the voltage fluctuates around the high/low
+  boundary, this can cause the pin input logic to switch between high
+  and low a lot. Each of these switches consumes a bit of power.
 
-- #####Preliminary support for bridge mode (library-pinoccio)
+  The easiest way to prevent this switches is to enable the internal
+  pullup which will keep the pin value high. However, when something is
+  connected to the pin, enabling the pullup could cause problems (like
+  accidentally enabling a connected relay). Therefore, this pullup is
+  only enabled on pins that are explicitely marked as "disconnected".
 
-- #####Add support for hardware PWM for digital pins 2, 3, 4, and 5 (library-pinoccio)
+- #####Add `pin.list` function (library-pinoccio, #130)
+  This allows listing all available pins with their names, modes and
+  current value. Due to technical limitation, this function only works
+  through the serial console right now.
 
-- #####Add beccapurple as a supported RGB LED color (library-pinoccio)
+  Note that this function was later renamed to `pin.status`.
+
+- #####Allow using all pins, not just Dx and Ax (library-pinoccio)
+  The pin handling functions `pin.setmode`, `pin.read`, `pin.write`,
+  etc. now support all I/O pins on the Scout instead of just the regular
+  digital and analog pins. All special pins can be used as a digital
+  I/O pin as well. For example:
+
+      > pin.makeinput("tx1")
+      > print(pin.read("tx1"))
+      1
+
+  Of course, pins that are reserved / used by a backpack (like the I²C
+  pins) can still not be used.
+
+  Note that pin reports to HQ still only include the Dx and Ax pins.
+
+- #####Add millis to all reports (library-pinoccio, #153)
+  This simply adds the value of the Arduino `millis()` counter to all
+  reports to help with synchronization and deduplication at HQ.
+
+- #####Allow multiple arguments to `hq.report` (library-pinoccio, #141)
+
+- #####Preliminary support for bridge mode (library-pinoccio, #147)
+  This prepares for letting the scout connect to HQ through the serial
+  port, using the pinoccio node commandline tool, but this is far from
+  complete yet.
+
+- #####Add support for hardware PWM for digital pins 2, 3, 4, and 5 (library-pinoccio, #114)
+  This allows outputting a PWM signal on pins that support it (like the
+  `analogWrite` Arduino function).
+
+  The frequency of the PWM signal is fixed at 976Hz (period is 1024μs)
+  and the duty cycle can be configured using `pin.write`.
+
+  To use this, first set the pinmode to PWM using e.g. `pin.makepwm(2)`.
+  Then, write a duty cycle using e.g. `pin.write(2, 128)`.
+
+  The duty cycle ranges from 0 (always low) to 255 (always high).
+
+- #####Add beccapurple as a supported RGB LED color (library-pinoccio, #138)
+
+- #####Add `uptime.micros` ScoutScript function (library-pinoccio)
+
+- #####Allow creating temporary string keys using `key` (library-pinoccio, #140)
+  By passing a non-zero value as the second argument of `key`, the key
+  created is automatically cleaned up after the current ScoutScript
+  command is completed.
+
+- #####Fix pin.save (library-pinoccio)
+  At some point, pin.save stopped actually saving the pin modes for
+  after reboot (it did apply them, though). It now works as expected
+  again.
 
 
 #2014060501
@@ -35,18 +199,36 @@
 - #####Add Serial Flash example for how to use the storage chip on the lead scout
 
 - #####Add ClearScoutScript example sketch to reset functions defined in EEPROM
+  This is a custom sketch that can be uploaded using the Arduino IDE,
+  which clears the EEPROM from any user-defined scoutscript functions.
+  This can be handy in case you added a startup function that prevents
+  the ScoutScript prompt from working as expected.
 
 - #####Include simple Bluetooth example sketch
+  This is an example using the Adafruit Bluetooth breakout board.
 
 - #####Slightly modify ScoutScript banner for easier reading
+  This reorders things a bit and removes the build number (which can be
+  found inside the revisions as well).
 
 - #####Solve issue with mesh security key, when given less than 16 bytes
+  Before, when a shorter key was used, the extra bytes were filled with
+  random memory contents. Now, they are filled with 0xff.
 
-- #####Better handling for skipping NTP on non-SSL connections for lead scout
+- #####Do not do NTP when SSL/TLS is disabled for the HQ connection
+  NTP timesync is needed to verify the certificate validity, but can be
+  skipped otherwise.
 
-- #####Fix incorrect ScoutScript usage arguments, specifically for `pin.save` and `hq.report`
+- #####Allow calling `pin.save` with 3 arguments and `hq.report` with 2.
+  This was already documented, but too strict argument checking
+  prevented these calls from working.
 
-- #####Clean up `power.sleep` handling
+- #####Minor `power.sleep` improvements
+  Some restructuring and small bugfixes should slightly improve the
+  sleep feature.
+
+- #####Swap scout.delay arguments, to match power.sleep
+  Now the delay is given as the first argument, unlike before.
 
 #2014051403
 

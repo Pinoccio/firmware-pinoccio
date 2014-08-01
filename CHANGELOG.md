@@ -1,3 +1,33 @@
+#2014073101
+
+- #####Add better sleep and awake timing resolution, now down to 16µS! (library-pinoccio)
+
+- #####Add ScoutScript function caching for much faster boot and event handling responsiveness (library-pinoccio)
+
+- #####Add support for faster, non-polling communications for WiFi backpack hardware version v1.1 (library-pinoccio)
+
+- #####Add support in ScoutScript for the wifi.config second argument to be optional, for open networks (library-pinoccio)
+
+- #####Additional bridge-mode serial REPL refactoring (library-pinoccio)
+
+
+#2014072201
+
+- #####Add BOM and labels for jumpers in Pinoccio Scout schematic (hardware-pinoccio)
+
+- #####Updated Lightweight Mesh library to v1.2.1 (library-atmel-lwm)
+
+- #####Add support for disabled and disconnected states for pins, for lower sleep power draw (library-pinoccio)
+
+- #####Add millis to all reports for clean synchro/deduplication at API side (library-pinoccio)
+
+- #####Preliminary support for bridge mode (library-pinoccio)
+
+- #####Add support for hardware PWM for digital pins 2, 3, 4, and 5 (library-pinoccio)
+
+- #####Add beccapurple as a supported RGB LED color (library-pinoccio)
+
+
 #2014060501
 
 - #####Add Serial Flash example for how to use the storage chip on the lead scout

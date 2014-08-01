@@ -10,6 +10,8 @@
 
 - #####Additional bridge-mode serial REPL refactoring (library-pinoccio)
 
+- #####Ability to calibrate temperature for each Scout--to offset external factors (library-pinoccio)
+
 
 #2014072201
 

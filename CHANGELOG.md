@@ -69,6 +69,28 @@
   of the last statement in the callback function is used, which might
   not be what you want.
 
+- ##### Restructure ScoutScript uptime API (library-pinoccio, #149)
+
+  There are now three uptime counters: uptime.awake, uptime.sleep
+  and uptime (total uptime). Each of them has two subcounters: .seconds
+  that returns the number of seconds and .micros that returns the time
+  _within_ the current second in microseconds (so this rolls over at
+  1,000,000 microseconds).
+
+  All counters now have a precision of 16us. The seconds counter is
+  32-bits wide, so it will only overflow after 136 years - as good as
+  never.
+
+  This removes the uptime.minutes, uptime.hours, uptime.days and
+  uptime.millis scoutscript functions. The uptime.micros function is
+  changed - before it returned the total number of microseconds since
+  startup, overflowing only after 2^32 us (over an hour). Now, it rolls
+  over every second and should be used in conjunction with the seconds
+  counter to get the full value.
+
+  Additionally, the uptime report now contains the total uptime and sleep
+  time, in seconds instead of milliseconds.
+
 - ##### Rename `pin.list` to `pin.status` and extend it (library-pinoccio, #149)
   It now also shows PWM and wakeup support for each pin.
 

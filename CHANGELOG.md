@@ -1,3 +1,10 @@
+#2014080101
+
+- #####Fix problem with newlines from reports (library-pinoccio, #159)
+  Reports were sometimes outputting newline characters but not carraige
+  return characters. To maintain backwards compatibility, a fix was added
+  to include both characters in report output.
+
 #2014073101
 
 - #####Use the symbol counter for sleep timing (library-pinoccio, #149)

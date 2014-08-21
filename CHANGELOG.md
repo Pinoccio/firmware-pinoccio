@@ -1,3 +1,94 @@
+#2014082001
+
+- #####Add module support (library-pinoccio, #151)
+  A Module is a class the defines a bunch of functionality that can be
+  dynamically enabled at runtime. The code is already present in Flash,
+  but the relevant setup steps (in particular, big memory allocations)
+  have not been performed and the associated bitlash function are not
+  registered yet until the module is enabled.
+
+  Each module should define a single instance of itself (and make its
+  constructor private to prevent creating further instances), which will
+  automatically register itself into the linked list of available modules
+  at startup (through the Module class constructor). This means there is
+  no need to keep a central list of available modules, and any modules
+  that live in external Arduino libraries are automatically included too.
+
+  The new module-related classes are put into the new "pinoccio"
+  namespace, to prevent potential naming conflicts with other code. The
+  rest of the code should be converted to use this namespace later, but
+  using the namespace for this new code right away probably makes things
+  easier.
+
+  Disabling a module is not currently supported, mainly because bitlash
+  has no way to un-register functions.
+
+- #####Shell.eval()/Shell.evalArgs() support (library-pinoccio, #163)
+  `Shell.eval()` is a C++ method that makes it easier to evaluate
+  ScoutScript commands from within the C/C++ codebase.
+
+  Some examples:
+
+  ```c
+  Serial.println("SHELL EVAL TEST");
+  Serial.println(Shell.eval("uptime.status"));
+  Serial.println(Shell.eval("uptime.seconds"));
+  numvar ret;
+  Serial.println(Shell.eval("millis",&ret));
+  char arg[10];
+  sprintf(arg,"%d",ret);
+  Shell.eval("verbose(1)");
+  Serial.println(Shell.evalArgs(2,"hq.report","foo",arg));
+  ```
+
+- #####Deprecate keys within ScoutScript for easier mesh communication (library-pinoccio, #166)
+  This change is a replacement for the message and key scoutscript, which
+  is terribly confusing.  Instead of having to encode strings as keys,
+  you now only need to send what ScoutScript command you want to execute
+  on the other Scout or Scouts.
+
+  ``command.scout(<scoutId>, "command"[, 32, "hi", "`led.gethex`" ...]);``
+   This builds the command string: `command(32, "hi", "FF00FF")`, and sends 
+   that command to be evaluated on the Scout with `<scoutId>`. Any argument
+   enclosed in backticks will be evaluated, and the return value will be
+   included as the value of the argument.
+
+  ``command.scout.ack("called",1,"led.sethex","`led.gethex`");``
+   This command is the same as `command.scout`, except that `called(err, rssi)`
+   is evaluated locally after the remote command is run.
+
+  `command.all("led.setrgb", random(255), random(255), random(255))`
+   This will run the command `led.setrgb(<random>, <random>, <random>)` on
+   every scout in the troop--where `<random>` is some value between 0 and 255.
+
+  `command.others("led.red")`
+   This will run the command `led.red` on every scout in the troop other than
+   the current Scout.
+
+- #####SPI fix for multiple SPI device access on the WiFi backpack (library-pinoccio, #161)
+  When an SPI device other than the WiFi module was accessed on the WiFi
+  backpack, SPI would completely stop.  This is now fixed, and you can
+  write to and read from the on-board 2MB flash storage without losing
+  your WiFi connection.
+  
+- #####Allow changing the HQ address and port using hq.setaddress
+  Changing the hq address through scoutscript always disables TLS (can
+  only be re-enabled through a reboot). The port defaults to 22756 when
+  left out.
+  `hq.setaddress("pool.base.pinocc.io")`
+  `hq.setaddress("192.168.1.123", 456)`
+  
+- #####Better WiFi recovery upon disconnect
+  When a lead scout doesn't see any activity from HQ it tries to re-associate WiFi,
+  and if that fails it completely restarts to cleanly reset the WiFi backpack. This
+  replaces the earlier Network Connection Manager (NCM) support built into the
+  Gainspan module, as it wasn't stable and would not hold connections.
+
+- #####Cleanup of event halting, to truly suppress events from emitting (library-pinoccio, #167)
+  In some instances, when events were stopped, some events would still emit,
+  specifically the LED change events.  This now ensures that all events
+  are truly disabled, lowering the chatter and traffic on the mesh.
+
 #2014080101
 
 - #####Fix problem with newlines from reports (library-pinoccio, #159)

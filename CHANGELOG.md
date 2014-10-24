@@ -1,3 +1,74 @@
+#2014xxxx01
+
+This release includes a number of bug fixes and stability improvements, along with the following feature additions and enhancements:
+
+- #####Add connection events (library-pinoccio, #169)
+  These can trigger troop-wide data reporting as soon as hq is online (or wifi is available).  They add two events:
+
+  * When the wifi backpack successfully associates to a network, it will call the script event named `on.wifi.associate`.
+  * As soon as any hq connection is established (including to a standalone pinoccio-server) via wifi or bridging (or other future connectivity) the script event `on.hq.online` is called.
+
+- #####Add more modules (library-pinoccio, #171)
+  Old modules have been moved into the new pattern. Use `module.status` to see what's building and what's not. Current module list...
+  * wifi
+  * env
+  * flash
+  * hello
+  * motion
+  * pixels
+  * servo
+
+- #####Add `mesh.fieldtest` (library-pinoccio, #175)
+  In the quest to make a simple mesh calibration utility, multiple new facilities were required and some odds and ends were fixed.
+
+  This adds the commands:
+
+  * `mesh.fieldtest(seconds)` - turns on a fieldtest mode that runs a constant mesh ping for this many seconds, the scout running the fieldtest will turn red for no mesh, yellow for weak mesh, and blink green for good mesh, and every other scout it is meshed with will blink blue
+  * `mesh.from` - returns the scout id that last commanded this scout (useful to auto-generate replies)
+  * `mesh.each("command")` - will run `command(id,lqi,via)` for every other scout currently visible on the mesh (as seen with `mesh.routing`)
+
+  It also enables multiple commands to be sent simultaneously.
+
+- #####Add mesh-wide `online` awareness (library-pinoccio, #176)
+  In an effort to improve the reliability of `hq.report` there were some side-effects:
+
+  * whenever a lead scout comes online, `on.hq.online` is triggered across the whole mesh
+  * the command `hq.online` will return 1/0 on any scout if hq has been seen recently on the mesh
+  * the last `hq.report` will be persisted and resent until a lead scout acks it (good for triggers to make sure they're sync'd)
+
+- #####Add a "sniffer" module (library-pinoccio, #184)
+  This module allows capturing packets from the mesh. To use it, enable the
+  module and call sniffer.start:
+
+      > module.enable("sniffer")
+      > sniffer.start
+
+  This dumps raw packets to the Serial port (but completely stops all
+  other processing on the Scout!).
+
+  By running `sniffer.start(1)`, a binary output mode is selected which
+  works in concert with a small script:
+
+  https://github.com/Pinoccio/tool-serial-pcap
+
+- #####Add `mesh.setchannel` (library-pinoccio, #187)
+  This adds a function, `mesh.setchannel` for setting the mesh channel without having to also pass a `pan id` and `address`, as are required with `mesh.config`.
+
+  Usage: `mesh.setchannel(26)` will set the mesh channel to 26.
+
+  **Important:** You'll want all the Scouts in your Troop to change to this new channel as well, so the practical usage should be `command.all("mesh.setchannel",26)`.
+
+- #####Add `command.group` (library-pinoccio, #189)
+  This adds a `command.group` function to ScoutScript. Use it to command a group of Scouts, for example: `command.group(42,"led.red")` will make all of the Scouts in `group 42` run `led.red`.
+
+- #####Implement `wifi.setverbose` (library-pinoccio, #197)
+  By default, only errors are logged. By running `wifi.verbose(1)`, all
+  data sent to and received from the wifi module is logged.
+
+  Logging only happens to Serial, since it is a bad idea to log data to HQ
+  (which goes through wifi, causing more log output, causing more traffic,
+  etc.).
+
 #2014082001
 
 - #####Add module support (library-pinoccio, #151)

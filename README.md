@@ -41,18 +41,10 @@ The `create-vm-image.sh` script will build a new VM image from scratch (advanced
 --------------
 1: Arduino IDE
 --------------
-The toolchain (gcc, libc, binutils and avrdude) shipped with the regular
-Arduino downloads too old and does not contain the right patches for the
-Atmega256RFR2 chip used in the Pinoccio Scout.
-
-Fortunately, the Arduino is preparing an update for the toolchain and
-has a preview version available already. You can download your required version
-here:
-
- - [Windows IDE Download](http://downloads.arduino.cc/arduino-avr-toolchain-nightly-gcc-4.8.1-windows.zip)
- - [OSX IDE Download](http://downloads.arduino.cc/arduino-avr-toolchain-nightly-gcc-4.8.1-macosx.zip)
- - [32-bit Linux Download](http://downloads.arduino.cc/arduino-avr-toolchain-nightly-gcc-4.8.1-linux32.tgz)
- - [64-bit Linux Download](http://downloads.arduino.cc/arduino-avr-toolchain-nightly-gcc-4.8.1-linux64.tgz)
+The toolchain (gcc, libc, binutils and avrdude) shipped with older
+Arduino versions is too old and does not contain the right patches for
+the Atmega256RFR2 chip used in the Pinoccio Scout. For this reason, you
+need at least IDE version 1.5.7 or above.
 
 ------------------------------------
 2 & 3: hardware folder and libraries

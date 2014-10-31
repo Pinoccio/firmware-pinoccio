@@ -57,15 +57,16 @@ BUILD_DIR=$(pwd)/build
 LIB_PINOCCIO=libraries/pinoccio
 SKETCH=${LIB_PINOCCIO}/examples/Bootstrap/Bootstrap.ino
 VERSION_H=${LIB_PINOCCIO}/examples/Bootstrap/version.h
-
-# TODO: Once https://github.com/arduino/Arduino/pull/2000 is merged, we
-# can use --no-save-prefs to prevent writing out a preferences file.
-ARDUINO_OPTIONS="--preferences-file ${PREF_FILE} --board ${BOARD} --port ${PORT} --pref build.path=${BUILD_DIR}"
+ARDUINO_OPTIONS=""
 
 # Include build.sh.local, so any options above can be overridden
 if [ -f build.sh.local ]; then
 	. ./build.sh.local
 fi
+
+# TODO: Once https://github.com/arduino/Arduino/pull/2000 is merged, we
+# can use --no-save-prefs to prevent writing out a preferences file.
+ARDUINO_OPTIONS="--preferences-file ${PREF_FILE} --board ${BOARD} --port ${PORT} --pref build.path=${BUILD_DIR} $ARDUINO_OPTIONS"
 
 usage() {
 	echo "Usage: $0 [-h|--help] [--upload] [-v|--verbose]"

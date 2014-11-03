@@ -2,12 +2,12 @@
 
 **Note:** This is primarily a bug fix release, hot on the heels of the last, more-substantial update. Make sure you check out the last release for all the other new newness.
 
-- #####Add `silent` (library-pinoccio, #200)
+- #####Add `serial.mute` (library-pinoccio, #200)
   This adds a new command to enable silent running mode, ensuring nothing is printed to Serial when any background commands are run.
 
-  Use just `silent` or `silent(1)` to put it in silent mode (it still prints to Serial when it receives commands from serial), and `silent(0)` to disable.
+  Use just `serial.mute` or `serial.mute(1)` to put it in silent mode (it still prints to Serial when it receives commands from serial), and `serial.mute(0)` to disable.
 
-  This is *highly recommended* to be put in startup functions when using scouts that aren't attached to USB and may be running commands that print to Serial, and it may even become the default soon if there's no issues found with it.
+  This is *highly recommended* to be put in startup functions when using scouts that aren't attached to USB and may be running commands that print to Serial, and it may even become the default soon if there're no issues found with it.
 
 #2014102801
 

@@ -1,3 +1,7 @@
+#2014110701
+
+Fixes some issues with compiling in Arudino IDE 1.5.8.
+
 #2014110301
 
 **Note:** This is primarily a bug fix release, hot on the heels of the last, more-substantial update. Make sure you check out the last release for all the other new newness.

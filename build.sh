@@ -137,4 +137,8 @@ ${ARDUINO} ${ACTION} ${ARDUINO_OPTIONS} $(pwd)/${SKETCH}
 # Put the build result in the current directory
 cp ${BUILD_DIR}/Bootstrap.cpp.hex Bootstrap.hex
 
+echo "Building pinoccio-firmware.zip..."
+
+zip -r --exclude=*.git* pinoccio-firmware.zip CHANGELOG.md README.md hardware/pinoccio libraries/bitlash libraries/lwm libraries/gainspan libraries/pinoccio libraries/js0n >/dev/null
+
 echo "Done!"

@@ -15,7 +15,3 @@
 [submodule "libraries/pinoccio"]
 	path = libraries/pinoccio
 	url = https://github.com/Pinoccio/library-pinoccio.git
-[submodule "libraries/js0n"]
-	path = libraries/js0n
-	url = https://github.com/quartzjer/js0n.git
-	branch = v1.0

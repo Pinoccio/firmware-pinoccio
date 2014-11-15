@@ -18,3 +18,4 @@
 [submodule "libraries/js0n"]
 	path = libraries/js0n
 	url = https://github.com/quartzjer/js0n.git
+	branch = v1.0

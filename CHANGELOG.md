@@ -1,3 +1,127 @@
+#2014111401
+
+⚠ **Arduino 1.5.8 or above is now _required_ when compiling custom sketches.** ⚠
+
+- ##### Initial support for Over-The-Air (OTA) updating ([library-pinoccio, #203](https://github.com/Pinoccio/library-pinoccio/pull/203))
+  This module allows over-the-air updating of other scouts. To use it, run `scout.otaboot` on the target scout to reboot it in OTA mode (it will stay in OTA mode for 10 seconds, or indefinitely if it receives any valid packet).
+
+  Then, on another scout with this commit, enable the `ota` module and run the ota commands:
+
+  ```
+  > module.enable("ota")
+  > ota.ping(0xffff)
+  >
+  PONG {'short_addr':0x0005, 'status':0x00, 'errno':0x0000,'appname': 'wibo', 'boardname':'pinoccio', 'version':0x05, 'crc':0x0000}
+
+  > ota.ping(5)
+  > No ping reply
+
+  > ota.ping(5)
+  >
+  PONG {'short_addr':0x0005, 'status':0x00, 'errno':0x0000,'appname': 'wibo', 'boardname':'pinoccio', 'version':0x05, 'crc':0x0000}
+  ```
+
+  `ota.ping` just tries a single pin, without retries, all other command retry a few times. Ping either accepts a target address, or `0xffff` to do a broadcast.
+
+  To actually flash something, use a sequence of `ota.start` to select the target, any number of `ota.block` to send data and `ota.end` to reboot the target again.
+
+  ```
+  > ota.start(5, 1)
+  >
+  OK
+
+  > ota.block(0, "DEADBEEF")
+  >
+  OK
+
+  > ota.end
+  >
+  OK
+  ```
+
+  `ota.start` takes the address of a target and `0` for normal flashing and `1` for a dry run (everything is sent over, but the target doesn't do the actual flashing).
+
+  `ota.block` preferably needs data in multiples of the flash page size (256 bytes). If shorter blocks are passed, they are padded with 0xff bytes (so the padding actually overwrites data!). Normally, this padding should only be needed for the final block. Due to limitations in bitlash, 512 byte is too much, so you should use blocks of 256.
+
+  Alternatively, you can use the `ota.clone` to send over the scout's own flash contents to the target instead of sending the data. An `ota.clone` command replaces a series of `ota.block` commands by sending the flash contents of the scout running it (excluding bootloader) to the target. To use it, use `ota.start`, `ota.clone` and `ota.end`.
+
+  Cloning also sends over all trailing `0xff` bytes in the flash, since the code does not know where the sketch code ends. Skipping all trailling 0xff bytes is also not possible, since the sketch might actually contain some trailing 0xff bytes (e.g. some data). For this reason, we just always send over _all_ flash contents.
+
+  All `ota` commands are coded so they eventually always print either "OK" or "FAIL" (on a line by itself), allowing a script to easily parse the result (since the bitlash command returns before the operation is completed).
+
+  To make using these commands easier, you can use the [commandline interface from the `pinoccio` nodejs module][npm.pinoccio], or upload directly from the Arduino IDE.
+
+  [npm.pinoccio]: https://www.npmjs.org/package/pinoccio
+
+  ###### OTA programming from the Arduino IDE
+
+  To do OTA updates from the IDE, connect another scout (in the same troop as the target) to your computer through USB and select it's port in the Port menu.
+
+  In the programmers menu, there are two options:
+
+    1. _Over-the-Air programming for Pinoccio (first target already in OTA mode)_ requires putting the target pinoccio into OTA mode manually beforehand, using the scout.otaboot command. Then the OTA update will use a broadcast ping to find it. If multiple scouts are in OTA mode, the first one to respond to the ping will be used.
+
+    2. _Over-the-Air programming for Pinoccio (selected target, switch to OTA mode)_ uses a specific target scout, which is also rebooted into OTA mode if needed. The target id needs to be configured beforehand using the pinoccio cli.Run e.g. `pinoccio config ota.default-target 123` to configure the target id.
+
+  This requires that the ["pinoccio" program][npm.pinoccio] is in the search PATH.
+
+  If you have it installed somewhere else, you can make a platform.local.txt file containing:
+  
+  ```
+  tools.pinoccio_ota.cmd.path=/path/to/pinoccio
+  ```
+
+- ##### Add SD example ([library-pinoccio, #210](https://github.com/Pinoccio/library-pinoccio/pull/210))
+  This example sketch initializes the SD library and adds a few bitlash commands to interact with it.
+
+- ##### WiFi: use SPI transactions ([library-pinoccio, #209](https://github.com/Pinoccio/library-pinoccio/pull/209))
+  The Gainspan module now takes care of initializing SPI and uses the transaction API to set the speed. We just use its defaults, so no need
+  to pass any extra settings either.
+
+  This new API makes sure that we always use our own SPI settings for every transaction, even when other libraries also use the SPI bus with
+  different settings.
+
+  ⚠ **Since we always use the transaction API, this means Arduino 1.5.8 or above is now required.**
+
+- ##### Power state is always "current" ([library-pinoccio, #213](https://github.com/Pinoccio/library-pinoccio/pull/213))
+  When using sleep extensively, the power report/commands could be returning old/cached information but will now always be current.
+
+- ##### Use torch LED to indicate boot and network status ([library-pinoccio, #207](https://github.com/Pinoccio/library-pinoccio/pull/207))
+  ###### The first pass at this is boot status indicators of:
+
+  1. The bootstrap blinks `torch` once
+  2. There is no LED during firmware boot
+  3. Successful firmware init turns on `torch` then runs custom startup scripts
+  4. Successful custom-startup completion turns off `torch`
+  5. If battery alarm is on (<20%) and it is not charging, it then blinks `red` three times quickly
+  6. If custom startup changes the LED, no post-boot indicators are done
+
+  So:
+
+  * two torch blinks - full boot + power
+  * two torch blinks then three red blinks - full boot but low power
+  * one torch blink then off - bad firmware
+  * one torch blink then steady torch - good firmware but bad startup scripts
+
+  ###### The second pass is the mesh network status blink:
+
+  This is only enabled after `scout.indicate` is run (optional arg of number of seconds, 5 is default, 0 to disable).
+
+  * network status is indicated once every `indicate` seconds
+  * it blinks the `torch` color
+  * if any other scouts are detected the blink is very small (short)
+  * if no mesh/scouts are detected the blink is a continuous second (long)
+  * should restore any other LED settings after
+
+  ###### The third pass is the wifi status:
+
+  This is only enabled after `wifi.indicate` is run.
+
+  * when associating, it will blink green very fast
+  * after it associated and while it's trying to connect to hq it will be solid green
+  * once connected to hq it turns back off
+  * if it disconnects it starts over associating again
+
 #2014110701
 
 Fixes some issues with compiling in Arudino IDE 1.5.8.
